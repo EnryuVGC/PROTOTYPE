@@ -25,9 +25,7 @@ struct flow_key {
 };
 
 struct flow_val {
-    u64 packets;
     u64 bytes;
-    u64 last_ns;
 };
 
 struct slot {
@@ -54,7 +52,7 @@ static __always_inline int on_target(struct sk_buff *skb)
     return (name[0] & MASK_LO) == NAME_LO && (name[1] & MASK_HI) == NAME_HI;
 }
 
-static __always_inline void count_flow(struct sk_buff *skb, u32 len, u64 now)
+static __always_inline void count_flow(struct sk_buff *skb, u32 len)
 {
     unsigned char *head = NULL;
     u16 nh_off = 0, proto = 0;
@@ -83,9 +81,7 @@ static __always_inline void count_flow(struct sk_buff *skb, u32 len, u64 now)
     val = flows.lookup_or_try_init(&key, &zero);
     if (!val)
         return;
-    __sync_fetch_and_add(&val->packets, 1);
     __sync_fetch_and_add(&val->bytes, len);
-    val->last_ns = now;
 }
 
 TRACEPOINT_PROBE(net, net_dev_queue)
@@ -97,7 +93,7 @@ TRACEPOINT_PROBE(net, net_dev_queue)
         return 0;
     now = bpf_ktime_get_ns();
     enq_ts.update(&key, &now);
-    count_flow(skb, args->len, now);
+    count_flow(skb, args->len);
     return 0;
 }
 

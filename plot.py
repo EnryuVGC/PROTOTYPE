@@ -23,8 +23,7 @@ def load(out, name):
     rows = list(csv.DictReader(open(path)))
     num = lambda r, k: float(r[k]) if r[k] else np.nan
     run = {k: np.array([num(r, k) for r in rows]) for k in
-           ("t", "rate_mbit", "sojourn_avg_ms", "qdelay_derived_ms", "drops")}
-    run["policy"] = [r["policy"] for r in rows]
+           ("t", "rate_mbit", "sojourn_avg_ms", "drops")}
     run["changes"] = [(run["t"][i], rows[i]["policy"]) for i in range(1, len(rows))
                       if rows[i]["policy"] != rows[i - 1]["policy"]]
     ping = list(csv.DictReader(open(os.path.join(out, name + ".ping.csv"))))
