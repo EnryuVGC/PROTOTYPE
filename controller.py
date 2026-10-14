@@ -1,14 +1,4 @@
 #!/usr/bin/env python3
-"""Bufferbloat detector + adaptive AQM controller (prototype).
-
-    observe  eBPF sojourn time and per-flow counters, qdisc statistics, a ping probe
-    detect   saturated link + standing queue + RTT inflation, held for a few seconds
-    decide   NORMAL -> DEGRADED -> MITIGATING -> RECOVERED, with hysteresis and dwell
-    act      replace the leaf qdisc on the bottleneck: pfifo -> fq_codel -> cake
-    verify   keep measuring; escalate or roll back if the change did not help
-
-Run as root. Every threshold below is an illustrative default, not a tuned value.
-"""
 import argparse
 import collections
 import csv
@@ -25,7 +15,7 @@ import threading
 import time
 
 LADDER = ["pfifo", "fq_codel", "cake"]
-WINDOW_NS = 100_000_000     # sojourn aggregation slot, matches CoDel's interval
+WINDOW_NS = 100_000_000
 NSLOTS = 64
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,8 +25,6 @@ def sh(cmd):
 
 
 class Qdisc:
-    """Reads statistics from, and replaces, the leaf qdisc under the shaper."""
-
     def __init__(self, ns, dev, parent, pfifo_limit):
         self.tc = ["ip", "netns", "exec", ns, "tc"] if ns else ["tc"]
         self.dev, self.parent, self.pfifo_limit = dev, parent, pfifo_limit
@@ -54,8 +42,6 @@ class Qdisc:
         return root, leaf
 
     def apply(self, kind):
-        # A fresh handle each time: tc refuses to change a qdisc's kind in place.
-        # Note that replacing a qdisc discards whatever was queued in the old one.
         self.handle += 1
         args = ["limit", str(self.pfifo_limit)] if kind == "pfifo" else []
         sh(self.tc + ["qdisc", "replace", "dev", self.dev, "parent", self.parent,
@@ -63,8 +49,6 @@ class Qdisc:
 
 
 class Observer:
-    """Loads observer.bpf.c and reads its maps."""
-
     def __init__(self, dev):
         from bcc import BPF
         name = dev.encode()
@@ -85,12 +69,6 @@ class Observer:
         self.prev_bytes = {}
 
     def sojourn(self):
-        """(min, avg, max) in ms over the 100 ms windows completed since the last call.
-
-        min is the smallest per-window minimum. A window with no departures counts
-        as zero: nothing was waiting. So min > X means that in every window, every
-        packet waited longer than X, which is CoDel's definition of a standing queue.
-        """
         now_epoch = time.monotonic_ns() // WINDOW_NS
         epochs = range(max(self.next_epoch, now_epoch - NSLOTS + 2), now_epoch)
         self.next_epoch = now_epoch
@@ -125,8 +103,6 @@ class Observer:
 
 
 class PingProbe(threading.Thread):
-    """Interactive 'victim' flow: 5 pings/s across the bottleneck."""
-
     def __init__(self, ns, target, t0, log_path, baseline_window):
         super().__init__(daemon=True)
         cmd = ["ping", "-n", "-i", "0.2", target]
@@ -151,7 +127,6 @@ class PingProbe(threading.Thread):
                 self.history.append((t, rtt))
 
     def sample(self, now):
-        """(median RTT since last call, baseline = windowed minimum RTT), or (None, baseline)."""
         with self.lock:
             fresh, self.fresh = self.fresh, []
             while self.history and self.history[0][0] < now - self.baseline_window:
@@ -170,7 +145,7 @@ class Controller:
         self.state = "NORMAL"
         self.rung = LADDER.index(args.base)
         self.policy = args.base
-        self.recent = collections.deque(maxlen=64)   # (t, delay_ms)
+        self.recent = collections.deque(maxlen=64)
         self.bad_since = self.good_since = self.idle_since = None
         self.changed_at = self.locked_until = 0.0
         self.before = None
@@ -198,7 +173,6 @@ class Controller:
         a = self.a
         self.recent.append((now, delay_ms))
         saturated = rate_mbit >= a.saturation * a.rate_mbit
-        # The two thresholds are deliberately far apart (hysteresis).
         bad = saturated and delay_ms > a.enter_ms and (inflation_ms is None or inflation_ms > a.enter_ms)
         good = delay_ms < a.exit_ms and (inflation_ms is None or inflation_ms < a.exit_ms)
         idle = rate_mbit < 0.5 * a.rate_mbit
@@ -225,7 +199,7 @@ class Controller:
 
         elif self.state == "MITIGATING":
             if now - self.changed_at < a.dwell:
-                return      # measurements still reflect the transient of our own change
+                return
             after = self._median_delay(self.changed_at + a.dwell / 2)
             if held(self.good_since) >= a.exit_persist:
                 self._goto("RECOVERED", f"delay {self.before:.0f} -> {after:.0f} ms, keeping {self.policy}")
@@ -244,8 +218,6 @@ class Controller:
             if held(self.bad_since) >= a.persist:
                 self._goto("DEGRADED", f"degraded again under {self.policy}")
             elif held(self.idle_since) >= a.cooldown and not a.no_revert and self.policy != a.base:
-                # Revert on absence of load, never on low delay: the low delay is
-                # caused by the policy, so reverting on it would flap.
                 self._switch(LADDER.index(a.base), now, f"link idle for {a.cooldown:g}s, back to base")
                 self._goto("NORMAL", "load gone")
 
@@ -289,7 +261,7 @@ def main():
     if not args.no_ebpf:
         try:
             observer = Observer(args.dev)
-        except Exception as e:      # noqa: BLE001 - any load failure means fallback
+        except Exception as e:
             print(f"!! eBPF observer failed to load ({e}); falling back to backlog/rate", flush=True)
 
     t0 = time.monotonic()
@@ -330,7 +302,6 @@ def main():
             root, leaf = qdisc.stats()
             rate = (root["bytes"] - prev_bytes) * 8 / dt / 1e6
             prev_bytes, prev_t = root["bytes"], now
-            # Leaf counters restart whenever the leaf is replaced.
             if prev_leaf[0] == qdisc.handle:
                 drops += max(0, leaf["drops"] - prev_leaf[1])
             else:
@@ -364,7 +335,7 @@ def main():
     if probe:
         probe.stop()
     if ctl.policy != args.base:
-        qdisc.apply(args.base)      # leave the interface in a known state
+        qdisc.apply(args.base)
         print(f"  >>> exit: restored {args.base}")
 
 

@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
-# Runs the same scripted load twice on a fresh testbed:
-#   1. static_pfifo  controller observes but never acts   (the control condition)
-#   2. adaptive      controller detects and switches the qdisc
-# then prints a comparison and writes results/demo.png.
-#
-# Usage: sudo ./run_demo.sh            both runs
-#        sudo ./run_demo.sh adaptive   just the adaptive run (good for a live demo)
 set -euo pipefail
 cd "$(dirname "$0")"
 [ "$(id -u)" = 0 ] || { echo "run with sudo" >&2; exit 1; }
 
-IDLE="${IDLE:-8}"       # quiet seconds before the bulk flow starts
-LOAD="${LOAD:-30}"      # seconds of bulk TCP
-TAIL="${TAIL:-14}"      # quiet seconds after it ends
+IDLE="${IDLE:-8}"
+LOAD="${LOAD:-30}"
+TAIL="${TAIL:-14}"
 OUT=results
 mkdir -p "$OUT"
 

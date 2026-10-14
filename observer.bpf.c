@@ -1,15 +1,3 @@
-// eBPF observer for one egress interface (loaded by controller.py through BCC).
-//
-//   net:net_dev_queue      packet handed to the qdisc   -> stamp it, count its flow
-//   net:net_dev_start_xmit packet leaves the qdisc      -> sojourn = now - stamp
-//
-// Sojourn time is therefore measured per packet, for whichever qdisc is
-// installed (pfifo included), and aggregated in the kernel into 100 ms slots.
-// User space only ever reads the slots and the per-flow table.
-//
-// NAME_LO/HI and MASK_LO/HI (the interface name as two u64s), WINDOW_NS and
-// NSLOTS are passed in as -D flags.
-
 #include <linux/skbuff.h>
 #include <linux/netdevice.h>
 #include <linux/ip.h>
@@ -29,15 +17,15 @@ struct flow_val {
 };
 
 struct slot {
-    u64 epoch;      // which WINDOW_NS interval this slot currently holds
+    u64 epoch;
     u64 count;
     u64 sum_ns;
     u64 min_ns;
     u64 max_ns;
 };
 
-BPF_TABLE("lru_hash", u64, u64, enq_ts, 16384);                       // skb -> enqueue time
-BPF_TABLE("lru_hash", struct flow_key, struct flow_val, flows, 4096); // five-tuple -> counters
+BPF_TABLE("lru_hash", u64, u64, enq_ts, 16384);
+BPF_TABLE("lru_hash", struct flow_key, struct flow_val, flows, 4096);
 BPF_ARRAY(slots, struct slot, NSLOTS);
 
 static __always_inline int on_target(struct sk_buff *skb)
@@ -115,8 +103,6 @@ TRACEPOINT_PROBE(net, net_dev_start_xmit)
     s = slots.lookup(&idx);
     if (!s)
         return 0;
-    // Dequeue for one device queue is serialised by the kernel, so the slot
-    // can be updated without atomics.
     if (s->epoch != epoch) {
         s->epoch = epoch;
         s->count = 0;

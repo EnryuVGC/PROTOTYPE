@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Summarise and plot the runs in a results directory (default: results/)."""
 import csv
 import json
 import os
@@ -13,7 +12,7 @@ import numpy as np
 RUNS = [("static_pfifo", "Static pfifo (controller off)"), ("adaptive", "Adaptive controller")]
 BLUE, ORANGE = "#2a78d6", "#eb6834"
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
-FLOOR_MS = 0.5      # log axis: anything faster is drawn here
+FLOOR_MS = 0.5
 
 
 def load(out, name):
