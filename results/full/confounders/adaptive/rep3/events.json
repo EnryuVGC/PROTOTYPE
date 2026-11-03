@@ -1,0 +1,147 @@
+{
+ "scenario": "confounders",
+ "system": "adaptive",
+ "rep": 3,
+ "about": "Things that raise RTT but are not a standing queue: a 20 -> 120 ms path change on an idle link, then 1.5 s bursts; then a real sustained upload. Only the last should trigger.",
+ "dur": 80,
+ "onset": 55,
+ "windows": {
+  "bursts": [
+   22,
+   52
+  ],
+  "sustained": [
+   55,
+   75
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 22,
+   "dur": 1.5
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 28,
+   "dur": 1.5
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 34,
+   "dur": 1.5
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 40,
+   "dur": 1.5
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 46,
+   "dur": 1.5
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 55,
+   "dur": 20
+  }
+ ],
+ "actions": [
+  {
+   "t": 10.015,
+   "planned": 10,
+   "kind": "path-delay",
+   "arg": "120ms"
+  },
+  {
+   "t": 22.007,
+   "planned": 22,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 22,
+    "dur": 1.5
+   }
+  },
+  {
+   "t": 28.026,
+   "planned": 28,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 28,
+    "dur": 1.5
+   }
+  },
+  {
+   "t": 34.005,
+   "planned": 34,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 34,
+    "dur": 1.5
+   }
+  },
+  {
+   "t": 40.006,
+   "planned": 40,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 40,
+    "dur": 1.5
+   }
+  },
+  {
+   "t": 46.01,
+   "planned": 46,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 46,
+    "dur": 1.5
+   }
+  },
+  {
+   "t": 55.009,
+   "planned": 55,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 55,
+    "dur": 20
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "80",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/confounders/adaptive/rep3/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--base",
+  "pfifo"
+ ],
+ "env": {},
+ "finished": "2026-11-03 19:52:13"
+}

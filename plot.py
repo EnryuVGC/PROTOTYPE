@@ -25,7 +25,10 @@ def load(out, name):
            ("t", "rate_mbit", "sojourn_avg_ms", "drops")}
     run["changes"] = [(run["t"][i], rows[i]["policy"]) for i in range(1, len(rows))
                       if rows[i]["policy"] != rows[i - 1]["policy"]]
-    ping = list(csv.DictReader(open(os.path.join(out, name + ".ping.csv"))))
+    ping_path = os.path.join(out, name + ".ping.h1.csv")
+    if not os.path.exists(ping_path):
+        ping_path = os.path.join(out, name + ".ping.csv")
+    ping = list(csv.DictReader(open(ping_path)))
     run["ping_t"] = np.array([float(r["t"]) for r in ping])
     run["ping"] = np.array([float(r["rtt_ms"]) for r in ping])
     try:

@@ -1,0 +1,56 @@
+{
+ "elapsed_s": 42.40396329900068,
+ "observer": true,
+ "bpf_progs": {
+  "tracepoint__net__net_dev_queue": {
+   "run_cnt": 107199,
+   "run_time_ns": 42073399
+  },
+  "tracepoint__net__net_dev_start_xmit": {
+   "run_cnt": 117071,
+   "run_time_ns": 73436636
+  }
+ },
+ "controller_cpu_s": 0.23584899999999998,
+ "system_busy_frac": 0.014952936971285595,
+ "qdisc_swaps": 1,
+ "qdisc_retunes": 0,
+ "final_policy": "fq_codel",
+ "args": {
+  "ns": "bb-r",
+  "dev": "r-eth1",
+  "parent": "1:1",
+  "rate_mbit": 10.0,
+  "pfifo_limit": 1000,
+  "probes": "h1:bb-h1:10.0.4.2",
+  "base": "pfifo",
+  "codel_target": null,
+  "codel_interval": null,
+  "tune_codel": false,
+  "cake_bw": null,
+  "observe_only": false,
+  "no_revert": false,
+  "no_remote": false,
+  "tick": 0.5,
+  "enter_ms": 100.0,
+  "exit_ms": 40.0,
+  "persist": 2,
+  "exit_persist": 3,
+  "dwell": 6,
+  "cooldown": 8,
+  "saturation": 0.85,
+  "load_frac": 0.2,
+  "baseline_window": 120,
+  "rebase_after": 5,
+  "shape_frac": 0.9,
+  "min_mbit": 0.5,
+  "probe_every": 8,
+  "probe_max": 32,
+  "probe_step": 1.15,
+  "probe_window": 8,
+  "no_ebpf": false,
+  "duration": 42.0,
+  "log": "/Users/shadowv4/Desktop/PROTOTYPE/results/full/bulk/adaptive_e100/rep2/ctl.csv",
+  "quiet": true
+ }
+}

@@ -1,0 +1,76 @@
+{
+ "scenario": "udpflood",
+ "system": "cake",
+ "rep": 2,
+ "about": "A bulk TCP flow, then an unresponsive 12 Mbit/s UDP flood from h3 that ignores drops.",
+ "dur": 42,
+ "onset": 14,
+ "windows": {
+  "tcp_only": [
+   4,
+   14
+  ],
+  "flood": [
+   14,
+   34
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 4,
+   "dur": 34
+  },
+  {
+   "proto": "udp",
+   "src": "h3",
+   "start": 14,
+   "dur": 20,
+   "rate": "12M"
+  }
+ ],
+ "actions": [
+  {
+   "t": 4.006,
+   "planned": 4,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 4,
+    "dur": 34
+   }
+  },
+  {
+   "t": 14.01,
+   "planned": 14,
+   "kind": "flow",
+   "arg": {
+    "proto": "udp",
+    "src": "h3",
+    "start": 14,
+    "dur": 20,
+    "rate": "12M"
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "42",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/udpflood/cake/rep2/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--observe-only",
+  "--base",
+  "cake"
+ ],
+ "env": {},
+ "finished": "2026-11-03 19:08:01"
+}

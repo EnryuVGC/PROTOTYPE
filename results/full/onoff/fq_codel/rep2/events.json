@@ -1,0 +1,121 @@
+{
+ "scenario": "onoff",
+ "system": "fq_codel",
+ "rep": 2,
+ "about": "Bulk TCP switching on and off every 4 s: stability stress near the thresholds.",
+ "dur": 46,
+ "onset": 4,
+ "windows": {
+  "active": [
+   4,
+   40
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 4,
+   "dur": 4
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 12,
+   "dur": 4
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 20,
+   "dur": 4
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 28,
+   "dur": 4
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 36,
+   "dur": 4
+  }
+ ],
+ "actions": [
+  {
+   "t": 4.015,
+   "planned": 4,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 4,
+    "dur": 4
+   }
+  },
+  {
+   "t": 12.007,
+   "planned": 12,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 12,
+    "dur": 4
+   }
+  },
+  {
+   "t": 20.011,
+   "planned": 20,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 20,
+    "dur": 4
+   }
+  },
+  {
+   "t": 28.009,
+   "planned": 28,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 28,
+    "dur": 4
+   }
+  },
+  {
+   "t": 36.005,
+   "planned": 36,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 36,
+    "dur": 4
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "46",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/onoff/fq_codel/rep2/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--observe-only",
+  "--base",
+  "fq_codel"
+ ],
+ "env": {},
+ "finished": "2026-11-03 19:22:04"
+}

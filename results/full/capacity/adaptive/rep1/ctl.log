@@ -1,0 +1,19 @@
+READY t0=3262.209386
+  >>> state NORMAL -> DEGRADED  (standing queue in our qdisc: min sojourn 148 ms on a saturated link, for 2s)
+  >>> qdisc pfifo -> fq_codel  (escalate)
+  >>> state DEGRADED -> MITIGATING  (holding for 6s dwell)
+  >>> state MITIGATING -> RECOVERED  (harm 128 -> 1 ms, keeping fq_codel)
+  >>> state RECOVERED -> DEGRADED  (degraded again under fq_codel (remote))
+  >>> qdisc fq_codel -> cake 5.44M  (queue is downstream: shape to 0.9 x 6.04M measured)
+  >>> state DEGRADED -> MITIGATING  (holding for 6s dwell)
+  >>> state MITIGATING -> RECOVERED  (harm 72 -> 2 ms, keeping cake 5.44M)
+  >>> qdisc cake 5.44M -> cake 6.25M  (rate probe up x1.15)
+  >>> state RECOVERED -> DEGRADED  (degraded again under cake 6.25M (remote))
+  >>> qdisc cake 6.25M -> cake 5.44M  (rate probe failed, back to 5.44M, next probe in 16s)
+  >>> state DEGRADED -> MITIGATING  (holding for 6s dwell)
+  >>> state MITIGATING -> RECOVERED  (harm 71 -> 2 ms, keeping cake 5.44M)
+  >>> qdisc cake 5.44M -> cake 6.25M  (rate probe up x1.15)
+  >>> qdisc cake 6.25M -> cake 8.27M  (rate probe up x1.32)
+  >>> qdisc cake 8.27M -> cake  (rate probe up x1.75)
+  >>> rate probe reached link capacity; shaper off
+  >>> exit: restored pfifo

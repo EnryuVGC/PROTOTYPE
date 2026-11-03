@@ -14,7 +14,7 @@ run() {
     echo; echo "=== $name: ${IDLE}s idle, ${LOAD}s bulk TCP h1 -> h2, ${TAIL}s idle ==="
     ./testbed.sh up
     ip netns exec bb-h2 iperf3 -s -1 >/dev/null 2>&1 &
-    ( sleep "$IDLE"; ip netns exec bb-h1 iperf3 -c 10.0.2.2 -t "$LOAD" -J > "$OUT/$name.iperf.json" ) &
+    ( sleep "$IDLE"; ip netns exec bb-h1 iperf3 -c 10.0.4.2 -t "$LOAD" -J > "$OUT/$name.iperf.json" ) &
     python3 controller.py --duration $((IDLE + LOAD + TAIL)) --log "$OUT/$name.csv" "$@"
     wait
 }

@@ -1,0 +1,56 @@
+{
+ "scenario": "bulk",
+ "system": "adaptive_e100",
+ "rep": 1,
+ "about": "One bulk TCP upload from h1 next to an interactive user (the canonical case).",
+ "dur": 42,
+ "onset": 6,
+ "windows": {
+  "loaded": [
+   6,
+   36
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 6,
+   "dur": 30
+  }
+ ],
+ "actions": [
+  {
+   "t": 6.009,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 6,
+    "dur": 30
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "42",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/bulk/adaptive_e100/rep1/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--base",
+  "pfifo",
+  "--enter-ms",
+  "100",
+  "--exit-ms",
+  "40"
+ ],
+ "env": {},
+ "finished": "2026-11-03 18:32:22"
+}

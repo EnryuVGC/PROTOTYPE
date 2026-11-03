@@ -1,0 +1,53 @@
+{
+ "scenario": "bulk",
+ "system": "pfifo",
+ "rep": 2,
+ "about": "One bulk TCP upload from h1 next to an interactive user (the canonical case).",
+ "dur": 42,
+ "onset": 6,
+ "windows": {
+  "loaded": [
+   6,
+   36
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 6,
+   "dur": 30
+  }
+ ],
+ "actions": [
+  {
+   "t": 6.008,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 6,
+    "dur": 30
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "42",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/bulk/pfifo/rep2/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--observe-only",
+  "--base",
+  "pfifo"
+ ],
+ "env": {},
+ "finished": "2026-11-03 19:03:24"
+}

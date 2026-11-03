@@ -1,0 +1,7 @@
+READY t0=3939.799833
+  >>> path baseline moved (+102 ms with the link idle): re-baselined
+  >>> state NORMAL -> DEGRADED  (standing queue in our qdisc: min sojourn 146 ms on a saturated link, for 2s)
+  >>> qdisc pfifo -> fq_codel  (escalate)
+  >>> state DEGRADED -> MITIGATING  (holding for 6s dwell)
+  >>> state MITIGATING -> RECOVERED  (harm 126 -> 1 ms, keeping fq_codel)
+  >>> exit: restored pfifo

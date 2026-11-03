@@ -1,0 +1,6 @@
+READY t0=2396.965538
+  >>> state NORMAL -> DEGRADED  (standing queue in our qdisc: min sojourn 151 ms on a saturated link, for 2s)
+  >>> qdisc pfifo -> fq_codel  (escalate)
+  >>> state DEGRADED -> MITIGATING  (holding for 6s dwell)
+  >>> state MITIGATING -> RECOVERED  (harm 134 -> 1 ms, keeping fq_codel)
+  >>> exit: restored pfifo

@@ -1,0 +1,73 @@
+{
+ "scenario": "capacity",
+ "system": "pfifo",
+ "rep": 2,
+ "about": "Bulk TCP while the downstream modem drops from 100 to 6 Mbit/s and recovers: the queue moves out of our qdisc.",
+ "dur": 75,
+ "onset": 15,
+ "windows": {
+  "fast_before": [
+   5,
+   15
+  ],
+  "slow": [
+   15,
+   35
+  ],
+  "fast_after": [
+   35,
+   70
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 5,
+   "dur": 65
+  }
+ ],
+ "actions": [
+  {
+   "t": 5.004,
+   "planned": 5,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 5,
+    "dur": 65
+   }
+  },
+  {
+   "t": 15.029,
+   "planned": 15,
+   "kind": "path-rate",
+   "arg": "6mbit"
+  },
+  {
+   "t": 35.018,
+   "planned": 35,
+   "kind": "path-rate",
+   "arg": "100mbit"
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "75",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/capacity/pfifo/rep2/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--observe-only",
+  "--base",
+  "pfifo"
+ ],
+ "env": {},
+ "finished": "2026-11-03 19:18:14"
+}

@@ -14,6 +14,13 @@ struct flow_key {
 
 struct flow_val {
     u64 bytes;
+    u64 pkts;
+    u64 sojourn_ns;
+};
+
+struct inflight {
+    u64 ts;
+    struct flow_key key;
 };
 
 struct slot {
@@ -24,7 +31,7 @@ struct slot {
     u64 max_ns;
 };
 
-BPF_TABLE("lru_hash", u64, u64, enq_ts, 16384);
+BPF_TABLE("lru_hash", u64, struct inflight, enq_ts, 16384);
 BPF_TABLE("lru_hash", struct flow_key, struct flow_val, flows, 4096);
 BPF_ARRAY(slots, struct slot, NSLOTS);
 
@@ -40,13 +47,11 @@ static __always_inline int on_target(struct sk_buff *skb)
     return (name[0] & MASK_LO) == NAME_LO && (name[1] & MASK_HI) == NAME_HI;
 }
 
-static __always_inline void count_flow(struct sk_buff *skb, u32 len)
+static __always_inline void flow_of(struct sk_buff *skb, struct flow_key *key)
 {
     unsigned char *head = NULL;
     u16 nh_off = 0, proto = 0;
     struct iphdr ip = {};
-    struct flow_key key = {};
-    struct flow_val zero = {}, *val;
 
     bpf_probe_read_kernel(&proto, sizeof(proto), &skb->protocol);
     if (proto != htons(ETH_P_IP))
@@ -56,47 +61,55 @@ static __always_inline void count_flow(struct sk_buff *skb, u32 len)
     if (bpf_probe_read_kernel(&ip, sizeof(ip), head + nh_off) < 0)
         return;
 
-    key.saddr = ip.saddr;
-    key.daddr = ip.daddr;
-    key.proto = ip.protocol;
+    key->saddr = ip.saddr;
+    key->daddr = ip.daddr;
+    key->proto = ip.protocol;
     if (ip.protocol == IPPROTO_TCP || ip.protocol == IPPROTO_UDP) {
         u16 ports[2] = {};
         bpf_probe_read_kernel(&ports, sizeof(ports), head + nh_off + ip.ihl * 4);
-        key.sport = ntohs(ports[0]);
-        key.dport = ntohs(ports[1]);
+        key->sport = ntohs(ports[0]);
+        key->dport = ntohs(ports[1]);
     }
-
-    val = flows.lookup_or_try_init(&key, &zero);
-    if (!val)
-        return;
-    __sync_fetch_and_add(&val->bytes, len);
 }
 
 TRACEPOINT_PROBE(net, net_dev_queue)
 {
     struct sk_buff *skb = (struct sk_buff *)args->skbaddr;
-    u64 key = (u64)skb, now;
+    u64 addr = (u64)skb;
+    struct inflight rec = {};
+    struct flow_val zero = {}, *val;
 
     if (!on_target(skb))
         return 0;
-    now = bpf_ktime_get_ns();
-    enq_ts.update(&key, &now);
-    count_flow(skb, args->len);
+    rec.ts = bpf_ktime_get_ns();
+    flow_of(skb, &rec.key);
+    enq_ts.update(&addr, &rec);
+
+    val = flows.lookup_or_try_init(&rec.key, &zero);
+    if (val)
+        __sync_fetch_and_add(&val->bytes, args->len);
     return 0;
 }
 
 TRACEPOINT_PROBE(net, net_dev_start_xmit)
 {
-    u64 key = (u64)args->skbaddr, now, sojourn, epoch;
-    u64 *tsp = enq_ts.lookup(&key);
+    u64 addr = (u64)args->skbaddr, now, sojourn, epoch;
+    struct inflight *rec = enq_ts.lookup(&addr);
+    struct flow_val *val;
     struct slot *s;
     int idx;
 
-    if (!tsp)
+    if (!rec)
         return 0;
     now = bpf_ktime_get_ns();
-    sojourn = now - *tsp;
-    enq_ts.delete(&key);
+    sojourn = now - rec->ts;
+
+    val = flows.lookup(&rec->key);
+    if (val) {
+        __sync_fetch_and_add(&val->pkts, 1);
+        __sync_fetch_and_add(&val->sojourn_ns, sojourn);
+    }
+    enq_ts.delete(&addr);
 
     epoch = now / WINDOW_NS;
     idx = epoch % NSLOTS;

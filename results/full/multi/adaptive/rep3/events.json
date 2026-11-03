@@ -1,0 +1,103 @@
+{
+ "scenario": "multi",
+ "system": "adaptive",
+ "rep": 3,
+ "about": "Four bulk TCP flows, two from h1 (20 ms) and two from h3 (80 ms): fairness and RTT-fairness.",
+ "dur": 42,
+ "onset": 6,
+ "windows": {
+  "loaded": [
+   6,
+   36
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 6,
+   "dur": 30
+  },
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 6,
+   "dur": 30
+  },
+  {
+   "proto": "tcp",
+   "src": "h3",
+   "start": 6,
+   "dur": 30
+  },
+  {
+   "proto": "tcp",
+   "src": "h3",
+   "start": 6,
+   "dur": 30
+  }
+ ],
+ "actions": [
+  {
+   "t": 6.011,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 6,
+    "dur": 30
+   }
+  },
+  {
+   "t": 6.013,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 6,
+    "dur": 30
+   }
+  },
+  {
+   "t": 6.015,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h3",
+    "start": 6,
+    "dur": 30
+   }
+  },
+  {
+   "t": 6.02,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h3",
+    "start": 6,
+    "dur": 30
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "42",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/multi/adaptive/rep3/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2,h3:bb-h3:10.0.4.2",
+  "--base",
+  "pfifo"
+ ],
+ "env": {},
+ "finished": "2026-11-03 19:33:38"
+}

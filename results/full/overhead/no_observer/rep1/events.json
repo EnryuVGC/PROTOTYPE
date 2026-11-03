@@ -1,0 +1,59 @@
+{
+ "scenario": "overhead",
+ "system": "no_observer",
+ "rep": 1,
+ "about": "Observer cost: an unshaped 10 Gbit/s path with no added delay, so iperf3 is CPU-bound; observer on vs off, steady state only (first 5 s of the flow excluded).",
+ "dur": 22,
+ "onset": 3,
+ "windows": {
+  "loaded": [
+   8,
+   19
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 3,
+   "dur": 17
+  }
+ ],
+ "actions": [
+  {
+   "t": 3.011,
+   "planned": 3,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 3,
+    "dur": 17
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "22",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/overhead/no_observer/rep1/ctl.csv",
+  "--rate-mbit",
+  "10000",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--observe-only",
+  "--base",
+  "pfifo",
+  "--no-ebpf"
+ ],
+ "env": {
+  "RATE": "10gbit",
+  "PATH_RATE": "10gbit",
+  "DELAY": "0ms",
+  "H3_DELAY": "0ms"
+ },
+ "finished": "2026-11-03 18:57:14"
+}

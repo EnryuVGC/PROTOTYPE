@@ -1,0 +1,53 @@
+{
+ "scenario": "bulk",
+ "system": "cake",
+ "rep": 1,
+ "about": "One bulk TCP upload from h1 next to an interactive user (the canonical case).",
+ "dur": 42,
+ "onset": 6,
+ "windows": {
+  "loaded": [
+   6,
+   36
+  ]
+ },
+ "flows": [
+  {
+   "proto": "tcp",
+   "src": "h1",
+   "start": 6,
+   "dur": 30
+  }
+ ],
+ "actions": [
+  {
+   "t": 6.012,
+   "planned": 6,
+   "kind": "flow",
+   "arg": {
+    "proto": "tcp",
+    "src": "h1",
+    "start": 6,
+    "dur": 30
+   }
+  }
+ ],
+ "controller_cmd": [
+  "python3",
+  "/Users/shadowv4/Desktop/PROTOTYPE/controller.py",
+  "--quiet",
+  "--duration",
+  "42",
+  "--log",
+  "/Users/shadowv4/Desktop/PROTOTYPE/results/full/bulk/cake/rep1/ctl.csv",
+  "--rate-mbit",
+  "10",
+  "--probes",
+  "h1:bb-h1:10.0.4.2",
+  "--observe-only",
+  "--base",
+  "cake"
+ ],
+ "env": {},
+ "finished": "2026-11-03 18:31:36"
+}
