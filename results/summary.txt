@@ -1,4 +1,0 @@
-Interactive probe RTT while the bulk flow is running (ms), and what it cost
-run                                p50     p95     p99   goodput  retrans  drops  switches
-Static pfifo (controller off)    945.5  1225.0  1243.9    9.50 M      334    335         0
-Adaptive controller               21.1   151.0   211.7    9.49 M      258     83         2

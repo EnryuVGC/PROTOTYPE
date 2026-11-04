@@ -2,3 +2,11 @@ __pycache__/
 *.pyc
 .DS_Store
 results/smoke*/
+.venv/
+
+# documents and reports (kept locally, not in the repo)
+docs/
+
+# ad-hoc / legacy run outputs; curated results live in results/full/
+results/*
+!results/full/

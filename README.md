@@ -196,4 +196,3 @@ The kernel's own per-program counters (`kernel.bpf_stats_enabled`) provide the n
 - **Single-direction.** Only upload is managed; ingress shaping (IFB) is not implemented.
 - **Tracepoints, not tc-BPF.** BCC on `net_dev_queue` / `net_dev_start_xmit` gives true
   enqueue-to-dequeue time for any qdisc. The cost is the per-packet overhead measured above.
-- `docs/*.pdf` describe the earlier prototype, not this version.
